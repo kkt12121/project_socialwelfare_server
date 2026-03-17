@@ -23,6 +23,6 @@ app.use(bodyParser.json());
   }
 })();
 
-// app.use("/api", require("./routes/api"));
+app.use("/api", require("./routes/api"));
 
 module.exports = server;
