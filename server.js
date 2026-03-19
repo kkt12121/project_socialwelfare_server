@@ -5,7 +5,7 @@ const http = require("http");
 const app = express();
 const cors = require("cors");
 const server = http.createServer(app);
-const pool = require("./config/config");
+const pool = require("./config/mysql.config");
 
 app.use(cors());
 

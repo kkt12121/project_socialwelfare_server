@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const pool = require("./config/config");
+const pool = require("./config/mysql.config");
 
 async function ensureMigrationsTable() {
   await pool.query(`

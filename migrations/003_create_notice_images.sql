@@ -1,0 +1,10 @@
+CREATE TABLE notice_images (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  notice_id INT NOT NULL,
+  public_id VARCHAR(255) NOT NULL,
+  image_url VARCHAR(500) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (notice_id)
+  REFERENCES notices(id)
+  ON DELETE CASCADE
+);
