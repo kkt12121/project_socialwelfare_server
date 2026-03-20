@@ -89,7 +89,7 @@ router.post("/forgotPw", async (req, res) => {
       reset_token_expires: expires,
     });
 
-    const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
+    const resetLink = `${process.env.SERVICE_URI}/reset-password?token=${resetToken}`;
 
     await mailService.sendResetEmail(email, resetLink);
 
