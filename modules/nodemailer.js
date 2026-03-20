@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 
 const sendResetEmail = async (email, resetLink) => {
   const mailOptions = {
-    from: `"가담재가복지센터" <${process.env.NODEMAILER_EMAIL}>`,
+    from: process.env.NODEMAILER_EMAIL,
     to: email,
     subject: "[가담재가복지센터] 비밀번호 재설정 안내입니다.",
     html: `
