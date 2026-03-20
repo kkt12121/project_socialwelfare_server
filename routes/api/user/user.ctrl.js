@@ -2,12 +2,13 @@ const express = require("express");
 const router = express.Router();
 const userRepository = require("../../../repositories/user.repository");
 const crypto = require("../../../modules/crypto");
+const mailService = require("../../../modules/nodemailer");
 const bcrypt = require("bcrypt");
 
 router.post("/register", async (req, res) => {
-  const { name, email, password, phone } = req.body;
+  const { name, birth, email, password, phone } = req.body;
   try {
-    if (!name || !email || !password || !phone) {
+    if (!name || !birth || !email || !password || !phone) {
       return res.status(400).json("data error");
     }
 
@@ -17,7 +18,7 @@ router.post("/register", async (req, res) => {
       return res.status(409).json("email duplicate");
     }
 
-    await userRepository.createUser(name, email, password, phone);
+    await userRepository.createUser(name, birth, email, password, phone);
 
     return res.status(200).json("success");
   } catch (error) {
@@ -60,6 +61,71 @@ router.post("/login", async (req, res) => {
     });
 
     return res.status(200).json({ accessToken, refreshToken });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json("InternalServerError");
+  }
+});
+
+router.post("/forgotPw", async (req, res) => {
+  const { email } = req.body;
+  try {
+    if (!email) {
+      return res.status(400).json("data error");
+    }
+
+    const findUser = await userRepository.getUserByEmail(email);
+
+    if (!findUser) {
+      return res.status(404).json("userinfo error");
+    }
+
+    const resetToken = crypto.randomToken();
+
+    const expires = new Date(Date.now() + 3600000);
+
+    await userRepository.updateUser(findUser.id, {
+      reset_token: resetToken,
+      reset_token_expires: expires,
+    });
+
+    const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
+
+    await mailService.sendResetEmail(email, resetLink);
+
+    return res.status(200).json("success");
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json("InternalServerError");
+  }
+});
+
+router.post("/resetPw", async (req, res) => {
+  const { token, password } = req.body;
+  try {
+    if (!token) {
+      return res.status(400).json("token error");
+    }
+
+    if (!password) {
+      return res.status(400).json("data error");
+    }
+
+    const findUser = await userRepository.getUserTokenVerify(token);
+
+    if (!findUser) {
+      return res.status(404).json("invalid or expired link");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await userRepository.updateUser(findUser.id, {
+      password: hashedPassword,
+      reset_token: null,
+      reset_token_expires: null,
+    });
+
+    return res.status(200).json("success");
   } catch (error) {
     console.log(error);
     return res.status(500).json("InternalServerError");
