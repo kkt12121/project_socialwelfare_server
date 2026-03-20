@@ -1,9 +1,7 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.naver.com",
-  port: 587,
-  secure: false,
+  service: "gmail",
   auth: {
     user: process.env.NODEMAILER_EMAIL,
     pass: process.env.NODEMAILER_PW,
@@ -12,7 +10,7 @@ const transporter = nodemailer.createTransport({
 
 const sendResetEmail = async (email, resetLink) => {
   const mailOptions = {
-    from: process.env.NODEMAILER_EMAIL,
+    from: `"가담재가복지센터" <${process.env.NODEMAILER_EMAIL}>`,
     to: email,
     subject: "[가담재가복지센터] 비밀번호 재설정 안내입니다.",
     html: `
