@@ -1,14 +1,15 @@
 const pool = require("../config/mysql.config");
 const bcrypt = require("bcrypt");
 
-exports.createUser = async (name, email, password, phone) => {
+exports.createUser = async (name, birth, email, password, phone) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const sql =
-    "INSERT INTO users (name, email, password, phone) VALUES (?, ?, ?, ?)";
+    "INSERT INTO users (name, birth, email, password, phone) VALUES (?, ?, ?, ?, ?)";
 
   const [result] = await pool.execute(sql, [
     name,
+    birth,
     email,
     hashedPassword,
     phone,
@@ -69,4 +70,13 @@ exports.updateUser = async (id, data) => {
   const [result] = await pool.execute(sql, values);
 
   return result;
+};
+
+exports.getUserTokenVerify = async (token) => {
+  const sql =
+    "SELECT * FROM users WHERE reset_token = ? AND reset_token_expires > NOW()";
+
+  const [rows] = await pool.execute(sql, [token]);
+
+  return rows[0];
 };

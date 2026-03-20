@@ -7,7 +7,12 @@ const cors = require("cors");
 const server = http.createServer(app);
 const pool = require("./config/mysql.config");
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+  }),
+);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

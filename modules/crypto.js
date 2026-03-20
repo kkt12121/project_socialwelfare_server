@@ -1,5 +1,10 @@
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const userRepository = require("../repositories/user.repository");
+
+const randomToken = () => {
+  return crypto.randomBytes(32).toString("hex");
+};
 
 const generateAccessToken = (id, email) => {
   return jwt.sign({ id, email }, process.env.ACCESS_TOKEN_SECRET, {
@@ -71,6 +76,7 @@ const reGenerateAccessToken = async (req, res, next) => {
 };
 
 module.exports = {
+  randomToken,
   generateAccessToken,
   generateRefreshToken,
   authenticateAccessToken,
