@@ -133,9 +133,9 @@ router.post("/resetPw", async (req, res) => {
 });
 
 router.get("/userInfo", crypto.authenticateAccessToken, async (req, res) => {
-  const { email } = req.decoded;
+  const { id } = req.decoded;
   try {
-    let userInfo = await userRepository.getUserByEmail(email);
+    let userInfo = await userRepository.getUserById(id);
 
     if (!userInfo) {
       return res.status(404).json("userInfo error");

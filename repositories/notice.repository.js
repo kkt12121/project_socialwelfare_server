@@ -8,13 +8,32 @@ exports.createNotice = async (user_id, title, content) => {
   return result;
 };
 
-exports.createNoticeImage = async (notice_id, images) => {
+exports.createNoticeImage = async (public_id, image_url) => {
+  const sql = "INSERT INTO notice_images (public_id, image_url) VALUES (?, ?)";
+
+  const [result] = await pool.execute(sql, [public_id, image_url]);
+
+  return result;
+};
+
+exports.updateNoticeImage = async (image_url, notice_id) => {
   const sql =
-    "INSERT INTO notice_images (notice_id, public_id, image_url) VALUES ?";
+    "UPDATE notice_images SET notice_id = ?, visible = 1 WHERE image_url = ?";
 
-  const values = images.map((img) => [notice_id, img.public_id, img.url]);
+  await pool.execute(sql, [notice_id, image_url]);
+};
 
-  await pool.query(sql, [values]);
+exports.updateNoticeImageVisible = async (imageArr, notice_id) => {
+  const placeholders = imageArr.map(() => "?").join(",");
+
+  const sql = `
+    UPDATE notice_images
+    SET visible = 0
+    WHERE notice_id = ?
+    AND image_url NOT IN (${placeholders})
+  `;
+
+  await pool.execute(sql, [notice_id, ...imageArr]);
 };
 
 exports.getNoticeById = async (id) => {
@@ -23,6 +42,14 @@ exports.getNoticeById = async (id) => {
   const [rows] = await pool.execute(sql, [id]);
 
   return rows[0];
+};
+
+exports.getAllNoticeImage = async () => {
+  const sql = "SELECT * FROM notice_images";
+
+  const [rows] = await pool.execute(sql);
+
+  return rows;
 };
 
 exports.getNoticeImageByNoticeId = async (id) => {
@@ -48,7 +75,7 @@ exports.deleteNoticeImage = async (id) => {
 };
 
 exports.getAllNotices = async () => {
-  const sql = "SELECT * FROM notices";
+  const sql = "SELECT * FROM notices ORDER BY id DESC";
 
   const [rows] = await pool.execute(sql);
 

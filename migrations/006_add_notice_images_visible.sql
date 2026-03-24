@@ -1,0 +1,2 @@
+ALTER TABLE notice_images 
+ADD COLUMN visible TINYINT(1) DEFAULT 0;

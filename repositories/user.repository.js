@@ -19,7 +19,7 @@ exports.createUser = async (name, birth, email, password, phone) => {
 };
 
 exports.getUserById = async (id) => {
-  const sql = "SELECT * FROM users WHERE id = ?";
+  const sql = "SELECT id, name, email, super FROM users WHERE id = ?";
 
   const [rows] = await pool.execute(sql, [id]);
 

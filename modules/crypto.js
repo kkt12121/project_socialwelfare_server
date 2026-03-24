@@ -13,17 +13,18 @@ const generateAccessToken = (id, email) => {
 };
 const generateRefreshToken = (id, email) => {
   return jwt.sign({ id, email }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: "180 days",
+    expiresIn: "3 days",
   });
 };
 
 const authenticateAccessToken = async (req, res, next) => {
   let userInfo;
   try {
-    req.decoded = jwt.verify(
-      req.headers.authorization,
-      process.env.ACCESS_TOKEN_SECRET,
-    );
+    const authHeader = req.headers.authorization;
+
+    const token = authHeader.split(" ")[1];
+
+    req.decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     userInfo = await userRepository.getUserById(req.decoded.id);
 
@@ -40,26 +41,24 @@ const authenticateAccessToken = async (req, res, next) => {
     } else if (error.name == "TokenExpiredError") {
       return res.status(401).json(error.name);
     }
-
-    console.log(error);
-
     return res.status(500).json("InternalServerError");
   }
 };
 
 const reGenerateAccessToken = async (req, res, next) => {
   try {
-    req.decoded = jwt.verify(
-      req.headers.authorization,
-      process.env.REFRESH_TOKEN_SECRET,
-    );
+    const authHeader = req.headers.authorization;
 
-    const token = await userRepository.getUserIdByRefreshToken(
+    const token = authHeader.split(" ")[1];
+
+    req.decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+
+    const tokenCheck = await userRepository.getUserIdByRefreshToken(
       req.decoded.id,
-      req.headers.authorization,
+      token,
     );
 
-    if (token) {
+    if (tokenCheck) {
       return next();
     } else {
       return res.status(401).json("Logout");
