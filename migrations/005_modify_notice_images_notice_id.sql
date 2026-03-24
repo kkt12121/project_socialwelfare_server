@@ -1,0 +1,2 @@
+ALTER TABLE notice_images
+MODIFY notice_id INT NULL DEFAULT NULL;
