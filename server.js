@@ -5,6 +5,7 @@ const http = require("http");
 const app = express();
 const cors = require("cors");
 const server = http.createServer(app);
+const cron = require("node-cron");
 const pool = require("./config/mysql.config");
 
 app.use(
@@ -29,5 +30,11 @@ app.use(bodyParser.json());
 })();
 
 app.use("/api", require("./routes/api"));
+
+const { cloudinaryDelete } = require("./modules/schedulers");
+
+cron.schedule("0 0 0 * * *", function () {
+  cloudinaryDelete();
+});
 
 module.exports = server;
